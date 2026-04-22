@@ -33,18 +33,42 @@ export function SocialWall({ socialWall, socialPosts }: Props) {
               whileHover={{ y: -6, rotate: 0 }}
               className="mb-4 break-inside-avoid overflow-hidden rounded-2xl border-2 border-zinc-900 bg-white shadow-[4px_4px_0_0_rgba(24,24,27,0.12)]"
             >
-              <div className="relative aspect-square">
-                <Image
-                  src={post.image}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                />
-                <span className="absolute right-2 top-2 rounded-full border border-white/20 bg-black/65 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-sm">
-                  {post.platform}
-                </span>
-              </div>
+              {post.sourceUrl ? (
+                <a
+                  href={post.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <div className="relative aspect-square">
+                    <Image
+                      src={post.image}
+                      alt=""
+                      fill
+                  unoptimized
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                    />
+                    <span className="absolute right-2 top-2 rounded-full border border-white/20 bg-black/65 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-sm">
+                      {post.platform}
+                    </span>
+                  </div>
+                </a>
+              ) : (
+                <div className="relative aspect-square">
+                  <Image
+                    src={post.image}
+                    alt=""
+                    fill
+                    unoptimized
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, 33vw"
+                  />
+                  <span className="absolute right-2 top-2 rounded-full border border-white/20 bg-black/65 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-sm">
+                    {post.platform}
+                  </span>
+                </div>
+              )}
               <p className="p-3 text-sm font-medium text-foreground">{post.caption}</p>
             </motion.div>
           ))}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import type { SiteConfig } from "@/lib/site-config-schema";
 import type { Brand } from "@/lib/site-config-schema";
@@ -542,6 +543,9 @@ function SocialTab({
   config: SiteConfig;
   setConfig: SetConfig;
 }) {
+  const [thumbBusy, setThumbBusy] = useState<Record<string, boolean>>({});
+  const [thumbError, setThumbError] = useState<Record<string, string>>({});
+
   const sw = config.socialWall;
   const setWall = (patch: Partial<typeof sw>) =>
     setConfig((c) => (c ? { ...c, socialWall: { ...c.socialWall, ...patch } } : c));
@@ -559,11 +563,44 @@ function SocialTab({
                 caption: "",
                 image:
                   "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=600&q=80",
+                sourceUrl: "",
               },
             ],
           }
         : c,
     );
+
+  const fetchInstagramThumb = async (idx: number, postId: string, url: string) => {
+    const cleaned = url.trim();
+    if (!cleaned) return;
+    setThumbError((prev) => ({ ...prev, [postId]: "" }));
+    setThumbBusy((prev) => ({ ...prev, [postId]: true }));
+    try {
+      const res = await fetch(
+        `/api/admin/instagram-thumbnail?url=${encodeURIComponent(cleaned)}`,
+        { credentials: "include" },
+      );
+      const data = (await res.json().catch(() => ({}))) as {
+        thumbnailUrl?: string;
+        error?: string;
+      };
+      if (!res.ok || !data.thumbnailUrl) {
+        setThumbError((prev) => ({
+          ...prev,
+          [postId]: data.error ?? "Gagal ambil thumbnail dari link.",
+        }));
+        return;
+      }
+      setConfig((c) => {
+        if (!c) return c;
+        const socialPosts = [...c.socialPosts];
+        socialPosts[idx] = { ...socialPosts[idx], image: data.thumbnailUrl ?? socialPosts[idx].image };
+        return { ...c, socialPosts };
+      });
+    } finally {
+      setThumbBusy((prev) => ({ ...prev, [postId]: false }));
+    }
+  };
 
   return (
     <>
@@ -649,6 +686,32 @@ function SocialTab({
                 rows={2}
               />
             </Field>
+            <Field label="Link feed (Instagram/TikTok)" hint="Tempel URL post/reel. Untuk Instagram, klik tombol auto thumbnail.">
+              <TextInput
+                value={p.sourceUrl}
+                onChange={(v) =>
+                  setConfig((c) => {
+                    if (!c) return c;
+                    const socialPosts = [...c.socialPosts];
+                    socialPosts[i] = { ...socialPosts[i], sourceUrl: v };
+                    return { ...c, socialPosts };
+                  })
+                }
+              />
+            </Field>
+            {p.platform === "Instagram" && (
+              <div className="flex items-center gap-3">
+                <BtnSecondary
+                  disabled={!p.sourceUrl.trim() || Boolean(thumbBusy[p.id])}
+                  onClick={() => void fetchInstagramThumb(i, p.id, p.sourceUrl)}
+                >
+                  {thumbBusy[p.id] ? "Mengambil..." : "Ambil thumbnail dari link Instagram"}
+                </BtnSecondary>
+                {thumbError[p.id] ? (
+                  <span className="text-sm text-red-600">{thumbError[p.id]}</span>
+                ) : null}
+              </div>
+            )}
             <MediaUrlField
               label="Gambar"
               accept="image/*"

@@ -151,6 +151,7 @@ export const defaultSiteConfig: SiteConfig = {
       caption: "Behind the scent lab — Velora drop minggu ini.",
       image:
         "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=600&q=80",
+      sourceUrl: "",
     },
     {
       id: "2",
@@ -158,6 +159,7 @@ export const defaultSiteConfig: SiteConfig = {
       caption: "GRWM: Lumen Lip shade baru untuk daily office.",
       image:
         "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&q=80",
+      sourceUrl: "",
     },
     {
       id: "3",
@@ -165,6 +167,7 @@ export const defaultSiteConfig: SiteConfig = {
       caption: "Solstice Body ritual malam — texture check.",
       image:
         "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=600&q=80",
+      sourceUrl: "",
     },
     {
       id: "4",
@@ -172,6 +175,7 @@ export const defaultSiteConfig: SiteConfig = {
       caption: "Unboxing Noir Atelier limited run.",
       image:
         "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=600&q=80",
+      sourceUrl: "",
     },
     {
       id: "5",
@@ -179,6 +183,7 @@ export const defaultSiteConfig: SiteConfig = {
       caption: "Dominatus townhall Q2 — culture snapshot.",
       image:
         "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80",
+      sourceUrl: "",
     },
     {
       id: "6",
@@ -186,6 +191,7 @@ export const defaultSiteConfig: SiteConfig = {
       caption: "Founder notes: kenapa kami percaya pada lip care kategori.",
       image:
         "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=600&q=80",
+      sourceUrl: "",
     },
   ],
   socialWall: {

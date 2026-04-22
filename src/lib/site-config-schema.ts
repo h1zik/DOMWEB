@@ -42,6 +42,7 @@ export const socialPostSchema = z.object({
   platform: z.enum(["Instagram", "TikTok"]),
   caption: z.string(),
   image: z.string(),
+  sourceUrl: z.string().default(""),
 });
 
 export const siteSchema = z.object({
