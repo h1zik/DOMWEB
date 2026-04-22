@@ -6,9 +6,9 @@ WORKDIR /app
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json* ./
+COPY prisma ./prisma
 RUN npm ci
 
-COPY prisma ./prisma
 COPY . .
 
 ARG DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder
