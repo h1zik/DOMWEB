@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Baris tunggal untuk konfigurasi / konten situs (JSON). Cocok untuk CMS atau admin panel.
+model AppConfig {
+  id        Int      @id @default(1)
+  data      Json     @default("{}")
+  updatedAt DateTime @updatedAt
+
+  @@map("app_config")
+}
