@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Explicit allow for Facebook crawlers (Sharing Debugger, link previews)
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Facebot
+Allow: /
+
+Sitemap: /sitemap.xml
