@@ -21,6 +21,8 @@ export async function generateMetadata(): Promise<Metadata> {
     c.site.faviconUrl.trim() !== ""
       ? [{ url: publicAssetUrl(c.site.faviconUrl) }]
       : undefined;
+  const canonicalUrl = base || "https://dominatus.id";
+  const ogImage = c.hero.imageUrl ? publicAssetUrl(c.hero.imageUrl) : undefined;
 
   return {
     metadataBase: base ? new URL(base) : undefined,
@@ -29,6 +31,24 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s · ${c.site.name}`,
     },
     description: c.site.description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: "website",
+      locale: "id_ID",
+      siteName: c.site.name,
+      title: `${c.site.name} — ${c.site.titleSuffix}`,
+      description: c.site.description,
+      url: canonicalUrl,
+      images: ogImage ? [{ url: ogImage }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${c.site.name} — ${c.site.titleSuffix}`,
+      description: c.site.description,
+      images: ogImage ? [ogImage] : undefined,
+    },
     icons,
   };
 }
