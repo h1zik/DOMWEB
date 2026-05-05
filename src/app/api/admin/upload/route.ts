@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
-import { writeFile } from "fs/promises";
 import path from "path";
 import { ADMIN_COOKIE, verifyAdminCookie } from "@/lib/admin-auth";
-import { ensureUploadsDir, extForMime, safeBasename, UPLOAD_MAX_BYTES } from "@/lib/uploads";
+import { extForMime, safeBasename, UPLOAD_MAX_BYTES } from "@/lib/uploads";
+import { getStorageBucket, getSupabaseStorageClient } from "@/lib/supabase-storage";
 
 export const runtime = "nodejs";
 
@@ -46,10 +46,19 @@ export async function POST(req: NextRequest) {
   const stamp = `${Date.now()}-${randomBytes(6).toString("hex")}`;
   const filename = `${baseName.slice(0, 40)}-${stamp}${extFromMime}`;
 
-  const dir = await ensureUploadsDir();
-  const dest = path.join(dir, filename);
   const buf = Buffer.from(await file.arrayBuffer());
-  await writeFile(dest, buf);
+  const storage = getSupabaseStorageClient();
+  const bucket = getStorageBucket();
+  const { error } = await storage.storage.from(bucket).upload(filename, buf, {
+    contentType: mime,
+    upsert: false,
+  });
+  if (error) {
+    return NextResponse.json(
+      { error: `Upload ke storage gagal: ${error.message}` },
+      { status: 500 },
+    );
+  }
 
   const publicPath = `/api/files/${encodeURIComponent(filename)}`;
   return NextResponse.json({

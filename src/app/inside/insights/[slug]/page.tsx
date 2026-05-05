@@ -1,16 +1,8 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSiteConfig } from "@/lib/get-site-config";
 
 type Props = { params: { slug: string } };
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const c = await getSiteConfig();
-  const post = c.insights.articles.find((a) => a.slug === params.slug);
-  if (!post) return { title: "Artikel" };
-  return { title: post.title };
-}
 
 export default async function InsightArticlePage({ params }: Props) {
   const c = await getSiteConfig();

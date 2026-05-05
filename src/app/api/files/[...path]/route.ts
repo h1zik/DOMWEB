@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFile, stat } from "fs/promises";
-import {
-  contentTypeForFile,
-  resolveUploadPath,
-} from "@/lib/uploads";
+import { getPublicStorageUrl } from "@/lib/supabase-storage";
 
 export const runtime = "nodejs";
 
@@ -21,22 +17,15 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  const filePath = resolveUploadPath(segments);
-  if (!filePath) {
-    return new NextResponse("Not found", { status: 404 });
-  }
-
   try {
-    const st = await stat(filePath);
-    if (!st.isFile()) {
-      return new NextResponse("Not found", { status: 404 });
-    }
-    const buf = await readFile(filePath);
-    const name = segments[segments.length - 1] ?? "file";
-    const ct = contentTypeForFile(name);
-    return new NextResponse(buf, {
+    const safePath = segments
+      .filter((s) => s !== ".." && !s.includes("\\"))
+      .join("/");
+    if (!safePath) return new NextResponse("Not found", { status: 404 });
+    const publicUrl = getPublicStorageUrl(safePath);
+    return NextResponse.redirect(publicUrl, {
+      status: 307,
       headers: {
-        "Content-Type": ct,
         "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
       },
     });

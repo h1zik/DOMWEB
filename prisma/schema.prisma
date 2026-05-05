@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 /// Baris tunggal untuk konfigurasi / konten situs (JSON). Cocok untuk CMS atau admin panel.

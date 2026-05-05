@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db";
 import { defaultSiteConfig } from "@/lib/default-site-config";
 import { getSiteConfig } from "@/lib/get-site-config";
@@ -7,7 +8,11 @@ import { verifyAdminCookie, ADMIN_COOKIE } from "@/lib/admin-auth";
 
 export async function GET() {
   const config = await getSiteConfig();
-  return NextResponse.json(config);
+  return NextResponse.json(config, {
+    headers: {
+      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+    },
+  });
 }
 
 export async function POST(req: NextRequest) {
@@ -44,6 +49,7 @@ export async function POST(req: NextRequest) {
       create: { id: 1, data: parsed.data as object },
       update: { data: parsed.data as object },
     });
+    revalidateTag("site-config");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json(
@@ -68,6 +74,7 @@ export async function DELETE(req: NextRequest) {
       create: { id: 1, data: defaultSiteConfig as object },
       update: { data: defaultSiteConfig as object },
     });
+    revalidateTag("site-config");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json(

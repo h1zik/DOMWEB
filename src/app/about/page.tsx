@@ -3,10 +3,9 @@ import { Target, Eye, Heart } from "lucide-react";
 import { getSiteConfig } from "@/lib/get-site-config";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const c = await getSiteConfig();
   return {
     title: "About Us",
-    description: c.about.intro,
+    description: "Tentang Dominatus, visi, misi, dan nilai inti perusahaan.",
   };
 }
 

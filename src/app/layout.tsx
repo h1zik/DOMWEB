@@ -12,7 +12,7 @@ const plusJakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
-export const revalidate = 60;
+export const revalidate = 900;
 
 export async function generateMetadata(): Promise<Metadata> {
   const c = await getSiteConfig();

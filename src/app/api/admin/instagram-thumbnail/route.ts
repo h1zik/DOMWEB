@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
-import path from "path";
-import { writeFile } from "fs/promises";
 import { ADMIN_COOKIE, verifyAdminCookie } from "@/lib/admin-auth";
-import { ensureUploadsDir, extForMime } from "@/lib/uploads";
+import { extForMime } from "@/lib/uploads";
+import { getStorageBucket, getSupabaseStorageClient } from "@/lib/supabase-storage";
 
 export const runtime = "nodejs";
+const FETCH_TIMEOUT_MS = 8000;
+
+function withTimeout(init?: RequestInit): RequestInit {
+  return {
+    ...init,
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  };
+}
 
 function isInstagramUrl(value: string): boolean {
   try {
@@ -18,13 +25,16 @@ function isInstagramUrl(value: string): boolean {
 
 async function fetchOgImage(url: string): Promise<string | null> {
   try {
-    const res = await fetch(url, {
+    const res = await fetch(
+      url,
+      withTimeout({
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
       },
       cache: "no-store",
-    });
+      }),
+    );
     if (!res.ok) return null;
     const html = await res.text();
     const m =
@@ -59,7 +69,9 @@ function extractShortcode(input: string): {
 
 async function probeImageUrl(url: string): Promise<boolean> {
   try {
-    const res = await fetch(url, {
+    const res = await fetch(
+      url,
+      withTimeout({
       method: "HEAD",
       redirect: "follow",
       headers: {
@@ -67,7 +79,8 @@ async function probeImageUrl(url: string): Promise<boolean> {
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
       },
       cache: "no-store",
-    });
+      }),
+    );
     const ct = res.headers.get("content-type") ?? "";
     return res.ok && ct.toLowerCase().startsWith("image/");
   } catch {
@@ -77,7 +90,9 @@ async function probeImageUrl(url: string): Promise<boolean> {
 
 async function persistThumbnailToUploads(remoteUrl: string): Promise<string | null> {
   try {
-    const res = await fetch(remoteUrl, {
+    const res = await fetch(
+      remoteUrl,
+      withTimeout({
       method: "GET",
       redirect: "follow",
       headers: {
@@ -85,7 +100,8 @@ async function persistThumbnailToUploads(remoteUrl: string): Promise<string | nu
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
       },
       cache: "no-store",
-    });
+      }),
+    );
     if (!res.ok) return null;
     const ct = (res.headers.get("content-type") ?? "").split(";")[0].trim().toLowerCase();
     const ext = extForMime(ct) ?? ".jpg";
@@ -93,10 +109,14 @@ async function persistThumbnailToUploads(remoteUrl: string): Promise<string | nu
     const buf = Buffer.from(await res.arrayBuffer());
     if (!buf.length) return null;
 
-    const dir = await ensureUploadsDir();
     const filename = `ig-thumb-${Date.now()}-${randomBytes(5).toString("hex")}${ext}`;
-    const dest = path.join(dir, filename);
-    await writeFile(dest, buf);
+    const storage = getSupabaseStorageClient();
+    const bucket = getStorageBucket();
+    const { error } = await storage.storage.from(bucket).upload(filename, buf, {
+      contentType: ct || "image/jpeg",
+      upsert: false,
+    });
+    if (error) return null;
     return `/api/files/${encodeURIComponent(filename)}`;
   } catch {
     return null;
@@ -124,7 +144,7 @@ export async function GET(req: NextRequest) {
   try {
     const oembed = await fetch(
       `https://noembed.com/embed?url=${encodeURIComponent(url)}`,
-      { cache: "no-store" },
+      withTimeout({ cache: "no-store" }),
     );
     if (oembed.ok) {
       const data = (await oembed.json().catch(() => ({}))) as {

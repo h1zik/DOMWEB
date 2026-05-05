@@ -35,7 +35,7 @@ function formatSize(n: number) {
   return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
 
-/** Input URL + tombol upload file ke volume (UPLOADS_DIR). */
+/** Input URL + tombol upload file ke Supabase Storage. */
 export function MediaUrlField({
   label,
   hint,
@@ -163,7 +163,7 @@ export function MediaTab() {
     <div className="space-y-6">
       <AdminCard
         title="Perpustakaan file"
-        description="File disimpan di folder yang ditentukan env UPLOADS_DIR (di Railway, mount volume ke path yang sama). Salin URL lalu tempel di logo, hero, brand, atau field gambar lain di tab lain."
+        description="File disimpan di Supabase Storage bucket. Salin URL lalu tempel di logo, hero, brand, atau field gambar lain di tab lain."
       >
         <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-6 text-center">
           <p className="text-sm font-medium text-zinc-700">
@@ -242,23 +242,29 @@ export function MediaTab() {
       </AdminCard>
 
       <AdminCard
-        title="Railway & volume"
-        description="Agar file tidak hilang saat deploy ulang, pasang volume persisten."
+        title="Supabase Storage"
+        description="Pastikan env storage benar agar upload media selalu tersedia lintas deploy."
       >
         <ul className="list-inside list-disc space-y-2 text-sm text-zinc-600">
           <li>
             Set variabel{" "}
             <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">
-              UPLOADS_DIR
+              SUPABASE_URL
             </code>{" "}
-            misalnya{" "}
+            ke URL project Supabase, misalnya{" "}
             <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">
-              /data/uploads
+              https://abcxyz.supabase.co
             </code>
           </li>
           <li>
-            Di Railway: <strong>Add Volume</strong> → mount path sama persis dengan{" "}
-            <code className="font-mono text-xs">UPLOADS_DIR</code> (folder dalam volume).
+            Set{" "}
+            <code className="font-mono text-xs">SUPABASE_SERVICE_ROLE_KEY</code> sebagai secret
+            server-side. Jangan dipakai di client.
+          </li>
+          <li>
+            Buat bucket sesuai{" "}
+            <code className="font-mono text-xs">SUPABASE_STORAGE_BUCKET</code> (disarankan public)
+            agar URL media bisa diakses publik.
           </li>
           <li>
             Set juga{" "}

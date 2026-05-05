@@ -10,10 +10,9 @@ const iconMap = {
 } as const;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const c = await getSiteConfig();
   return {
     title: "Culture",
-    description: c.culture.intro,
+    description: "Nilai dan budaya kerja di lingkungan Dominatus.",
   };
 }
 

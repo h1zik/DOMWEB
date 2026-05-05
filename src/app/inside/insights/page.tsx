@@ -3,10 +3,9 @@ import Link from "next/link";
 import { getSiteConfig } from "@/lib/get-site-config";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const c = await getSiteConfig();
   return {
     title: "Blog & Press",
-    description: c.insights.subtitle,
+    description: "Artikel, rilis, dan kabar terbaru dari Dominatus.",
   };
 }
 

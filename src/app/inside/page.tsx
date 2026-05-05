@@ -4,10 +4,9 @@ import { ArrowRight } from "lucide-react";
 import { getSiteConfig } from "@/lib/get-site-config";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const c = await getSiteConfig();
   return {
     title: "Inside Dominatus",
-    description: c.insideHub.subtitle,
+    description: "Cerita budaya, karir, dan wawasan dari dalam Dominatus.",
   };
 }
 

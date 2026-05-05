@@ -3,10 +3,9 @@ import { BrandCard } from "@/components/BrandCard";
 import { getSiteConfig } from "@/lib/get-site-config";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const c = await getSiteConfig();
   return {
     title: "Our Brands",
-    description: c.mosaic.subtitle,
+    description: "Portofolio brand dalam ekosistem Dominatus Group.",
   };
 }
 
